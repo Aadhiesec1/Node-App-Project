@@ -3,7 +3,6 @@ pipeline {
 
     environment {
         APP_USER = "ubuntu"
-        APP_HOST = "APP_EC2_PUBLIC_IP"
         APP_DIR  = "/home/ubuntu/Node-App-Project"
         REPO_URL = "https://github.com/Aadhiesec1/Node-App-Project.git"
     }

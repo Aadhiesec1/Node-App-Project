@@ -12,7 +12,7 @@ pipeline {
 
         stage('Deploy to App EC2') {
             steps {
-                sshagent(['app-ec2-ssh']) {
+                sshagent(['ec2-ssh-key']) {
                     sh """
                     ssh -o StrictHostKeyChecking=no ${APP_USER}@${APP_HOST} '
                         set -e

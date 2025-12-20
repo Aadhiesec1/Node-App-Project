@@ -29,11 +29,12 @@ pipeline {
 
                         echo "Installing dependencies..."
                         npm install
+			
+			echo "Restarting application (without PM2)..."
+			pkill -f "node index.js" >/dev/null 2>&1 || true
+			nohup node index.js > app.log 2>&1 &
 
-                        echo "Restarting application (without PM2)..."
-                        pkill -f "node index.js" || true
-                        nohup node index.js > app.log 2>&1 &
-                    '
+	               '
                     """
                 }
             }

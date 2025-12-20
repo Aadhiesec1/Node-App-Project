@@ -17,28 +17,29 @@ pipeline {
             steps {
                 sshagent(['ec2-ssh-key']) {
                     sh """
-                    ssh -o StrictHostKeyChecking=no ${APP_USER}@${APP_HOST} '
-                        set -e
+ssh -o StrictHostKeyChecking=no ${APP_USER}@${APP_HOST} << 'EOF'
+set -e
 
-                        if [ -d "${APP_DIR}" ]; then
-                            echo "Project exists. Pulling latest code..."
-                            cd ${APP_DIR}
-                            git pull origin main
-                        else
-                            echo "Project not found. Cloning repository..."
-                            cd /home/ubuntu
-                            git clone ${REPO_URL}
-                            cd Node-App-Project
-                        fi
+if [ -d "${APP_DIR}" ]; then
+    echo "Project exists. Pulling latest code..."
+    cd ${APP_DIR}
+    git pull origin main
+else
+    echo "Project not found. Cloning repository..."
+    cd /home/ubuntu
+    git clone ${REPO_URL}
+    cd Node-App-Project
+fi
 
-                        echo "Installing dependencies..."
-                        npm install
+echo "Installing dependencies..."
+npm install
 
-                        echo "Restarting application (without PM2)..."
-                        pkill -f "node index.js" >/dev/null 2>&1 || true
-                        nohup node index.js > app.log 2>&1 &
-                    '
-                    """
+echo "Restarting application (without PM2)..."
+pkill -f "node index.js" >/dev/null 2>&1 || true
+nohup node index.js > app.log 2>&1 &
+
+EOF
+"""
                 }
             }
         }

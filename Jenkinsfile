@@ -1,6 +1,10 @@
 pipeline {
     agent any
 
+    parameters {
+        string(name: 'APP_HOST', description: 'EC2 Public IP address')
+    }
+
     environment {
         APP_USER = "ubuntu"
         APP_DIR  = "/home/ubuntu/Node-App-Project"
@@ -29,12 +33,11 @@ pipeline {
 
                         echo "Installing dependencies..."
                         npm install
-			
-			echo "Restarting application (without PM2)..."
-			pkill -f "node index.js" >/dev/null 2>&1 || true
-			nohup node index.js > app.log 2>&1 &
 
-	               '
+                        echo "Restarting application (without PM2)..."
+                        pkill -f "node index.js" >/dev/null 2>&1 || true
+                        nohup node index.js > app.log 2>&1 &
+                    '
                     """
                 }
             }

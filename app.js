@@ -2,7 +2,7 @@ const express = require("express");
 const app = express();
 
 app.get("/", (req, res) => {
-  res.send("CI/CD Automatic Build Pipeline via github + jenkins!");
+  res.send("CI/CD Automatic Build Pipeline via github + jenkins");
 });
 
 app.listen(3000, '0.0.0.0');

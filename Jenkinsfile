@@ -1,10 +1,6 @@
 pipeline {
     agent any
 
-    parameters {
-        string(name: 'APP_HOST', description: 'EC2 Public IP address')
-    }
-
     environment {
         APP_USER = "ubuntu"
         APP_DIR  = "/home/ubuntu/Node-App-Project"
@@ -12,6 +8,17 @@ pipeline {
     }
 
     stages {
+
+        stage('Load EC2 Host') {
+            steps {
+                withCredentials([string(
+                    credentialsId: 'APP_EC2_HOST',
+                    variable: 'APP_HOST'
+                )]) {
+                    sh 'echo "EC2 host loaded from Jenkins credentials"'
+                }
+            }
+        }
 
         stage('Deploy to App EC2') {
             steps {

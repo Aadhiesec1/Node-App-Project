@@ -13,10 +13,24 @@ pipeline {
             steps {
                 withCredentials([string(
                     credentialsId: 'APP_EC2_HOST',
-                    variable: 'APP_HOST'
+                    variable: 'HOST_FROM_CRED'
                 )]) {
-                    sh 'echo "EC2 host loaded from Jenkins credentials"'
+                    script {
+                        // Promote credential to global env
+                        env.APP_HOST = HOST_FROM_CRED
+                    }
                 }
+            }
+        }
+
+        stage('Validate Configuration') {
+            steps {
+                sh '''
+                  if [ -z "$APP_HOST" ]; then
+                    echo "ERROR: APP_HOST is empty"
+                    exit 1
+                  fi
+                '''
             }
         }
 
@@ -26,6 +40,8 @@ pipeline {
                     sh """
 ssh -o StrictHostKeyChecking=no ${APP_USER}@${APP_HOST} << 'EOF'
 set -e
+
+echo "Connected to EC2: \$(hostname)"
 
 if [ -d "${APP_DIR}" ]; then
     echo "Project exists. Pulling latest code..."
@@ -41,10 +57,11 @@ fi
 echo "Installing dependencies..."
 npm install
 
-echo "Restarting application (without PM2)..."
+echo "Restarting application..."
 pkill -f "node index.js" >/dev/null 2>&1 || true
 nohup node index.js > app.log 2>&1 &
 
+echo "Deployment finished on EC2"
 EOF
 """
                 }

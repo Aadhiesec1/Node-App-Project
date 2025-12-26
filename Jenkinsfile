@@ -4,8 +4,7 @@ pipeline {
     parameters {
         string(
             name: 'APP_HOST',
-            defaultValue: '',
-            description: 'EC2 public IP or DNS (without username)'
+            description: 'EC2 public IP or DNS'
         )
     }
 
@@ -17,7 +16,7 @@ pipeline {
 
     stages {
 
-        stage('Validate Parameters') {
+        stage('Validate Configuration') {
             steps {
                 script {
                     if (!params.APP_HOST?.trim()) {
@@ -34,27 +33,20 @@ pipeline {
 ssh -o StrictHostKeyChecking=no ${APP_USER}@${params.APP_HOST} << 'EOF'
 set -e
 
-echo "Connected to EC2: \$(hostname)"
-
 if [ -d "${APP_DIR}" ]; then
-    echo "Project exists. Pulling latest code..."
     cd ${APP_DIR}
     git pull origin main
 else
-    echo "Project not found. Cloning repository..."
-    cd /home/ubuntu
+    cd /home/${APP_USER}
     git clone ${REPO_URL}
     cd Node-App-Project
 fi
 
-echo "Installing dependencies..."
 npm install
 
-echo "Restarting application..."
 pkill -f "node index.js" >/dev/null 2>&1 || true
 nohup node index.js > app.log 2>&1 &
 
-echo "Deployment finished on EC2"
 EOF
 """
                 }
@@ -64,10 +56,10 @@ EOF
 
     post {
         success {
-            echo "Deployment completed successfully 🚀"
+            echo "Deployment completed successfully"
         }
         failure {
-            echo "Deployment failed ❌"
+            echo "Deployment failed"
         }
     }
 }

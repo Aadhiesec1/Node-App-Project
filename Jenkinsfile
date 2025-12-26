@@ -1,13 +1,6 @@
 pipeline {
     agent any
 
-    parameters {
-        string(
-            name: 'APP_HOST',
-            description: 'EC2 public IP or DNS'
-        )
-    }
-
     environment {
         APP_USER = "ubuntu"
         APP_DIR  = "/home/ubuntu/Node-App-Project"
@@ -19,8 +12,8 @@ pipeline {
         stage('Validate Configuration') {
             steps {
                 script {
-                    if (!params.APP_HOST?.trim()) {
-                        error "APP_HOST parameter is required"
+                    if (!env.APP_HOST?.trim()) {
+                        error "APP_HOST is not set in Jenkins job configuration"
                     }
                 }
             }
@@ -30,7 +23,7 @@ pipeline {
             steps {
                 sshagent(['ec2-ssh-key']) {
                     sh """
-ssh -o StrictHostKeyChecking=no ${APP_USER}@${params.APP_HOST} << 'EOF'
+ssh -o StrictHostKeyChecking=no ${APP_USER}@${env.APP_HOST} << 'EOF'
 set -e
 
 if [ -d "${APP_DIR}" ]; then

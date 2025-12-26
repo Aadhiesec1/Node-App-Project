@@ -12,7 +12,7 @@ pipeline {
         stage('Validate Configuration') {
             steps {
                 script {
-                    if (!env.APP_HOST?.trim()) {
+                    if (!params.APP_HOST?.trim()) {
                         error "APP_HOST is not set in Jenkins job configuration"
                     }
                 }
@@ -23,7 +23,7 @@ pipeline {
             steps {
                 sshagent(['ec2-ssh-key']) {
                     sh """
-ssh -o StrictHostKeyChecking=no ${APP_USER}@${env.APP_HOST} << 'EOF'
+ssh -o StrictHostKeyChecking=no ${APP_USER}@${params.APP_HOST} << 'EOF'
 set -e
 
 if [ -d "${APP_DIR}" ]; then

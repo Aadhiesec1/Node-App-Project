@@ -1,6 +1,14 @@
 pipeline {
     agent any
 
+    parameters {
+        string(
+            name: 'APP_HOST',
+            defaultValue: '',
+            description: 'EC2 public IP or DNS (without username)'
+        )
+    }
+
     environment {
         APP_USER = "ubuntu"
         APP_DIR  = "/home/ubuntu/Node-App-Project"
@@ -9,28 +17,13 @@ pipeline {
 
     stages {
 
-        stage('Load EC2 Host') {
+        stage('Validate Parameters') {
             steps {
-                withCredentials([string(
-                    credentialsId: 'APP_EC2_HOST',
-                    variable: 'HOST_FROM_CRED'
-                )]) {
-                    script {
-                        // Promote credential to global env
-                        env.APP_HOST = HOST_FROM_CRED
+                script {
+                    if (!params.APP_HOST?.trim()) {
+                        error "APP_HOST parameter is required"
                     }
                 }
-            }
-        }
-
-        stage('Validate Configuration') {
-            steps {
-                sh '''
-                  if [ -z "$APP_HOST" ]; then
-                    echo "ERROR: APP_HOST is empty"
-                    exit 1
-                  fi
-                '''
             }
         }
 
@@ -38,7 +31,7 @@ pipeline {
             steps {
                 sshagent(['ec2-ssh-key']) {
                     sh """
-ssh -o StrictHostKeyChecking=no ${APP_USER}@${APP_HOST} << 'EOF'
+ssh -o StrictHostKeyChecking=no ${APP_USER}@${params.APP_HOST} << 'EOF'
 set -e
 
 echo "Connected to EC2: \$(hostname)"

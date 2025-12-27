@@ -7,7 +7,7 @@ const ENV = process.env.NODE_ENV || "development";
 
 app.get("/", (req, res) => {
   res.send(`
-    <h1>🚀 Automated CI/CD Pipeline</h1>
+    <h1>Automated CI/CD Pipeline</h1>
     <p><b>GitHub → Jenkins → AWS EC2</b></p>
     <hr />
     <p><b>Environment:</b> ${ENV}</p>
